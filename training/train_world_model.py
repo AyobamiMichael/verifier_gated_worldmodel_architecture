@@ -1,8 +1,19 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
 from models.world_model import WorldModel, encode_action
+import numpy as np
+
+
+# Data Region Restriction 
+def filter_region(states, actions, next_states):
+    mask = (states[:, 0] < 6) & (states[:, 1] < 6)
+    return states[mask], actions[mask], next_states[mask]
+
+
+def bootstrap_sample(states, actions, next_states):
+    idx = np.random.choice(len(states), len(states), replace=True)
+    return states[idx], actions[idx], next_states[idx]
 
 
 def train_world_model(states, actions, next_states, epochs=20, lr=1e-3, save_path="models/world_model.pth"):
