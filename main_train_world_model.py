@@ -3,7 +3,7 @@ import torch
 from env.gridworld import GridWorld
 from policy.goal_bias_policy import GoalBiasPolicy
 from training.collect_data import collect_transitions, to_numpy
-from training.train_world_model import bootstrap_sample, train_world_model
+from training.train_world_model import bootstrap_sample, filter_region, train_world_model
 
 
 
@@ -32,6 +32,10 @@ if __name__ == "__main__":
         torch.manual_seed(i)
 
         s, a, ns = bootstrap_sample(states, actions, next_states)
+
+        # For OOD experiments, we can also restrict to a certain region of the state space
+        #s, a, ns = filter_region(states, actions, next_states)
+
         model = train_world_model(
             s, a, ns,
             save_path=f"models/world_model_{i}.pth"

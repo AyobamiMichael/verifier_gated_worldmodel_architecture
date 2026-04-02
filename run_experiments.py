@@ -1,4 +1,3 @@
-
 from env.gridworld import GridWorld
 from models.ensemble import EnsembleModel
 from models.load_model import load_world_model
@@ -7,11 +6,12 @@ from experiments.runner import ExperimentRunner
 from training.train_critic import train_critic
 from main_train_world_model import prepare_data
 from verifier.hybrid_verifier import HybridVerifier
+from utils.visualization import plot_metrics
 
 
-# load world model
 
-#model = load_world_model()
+
+results_all = {}
 
 env = GridWorld(
     size=10,
@@ -31,10 +31,41 @@ critic = train_critic(states, actions, next_states, env)
 
 policy = GoalBiasPolicy(env,  seed =42)
 
-verifier = HybridVerifier(env=env, world_model=models[0], ensemble_model=ensemble, critic=critic)
-runner = ExperimentRunner(env, policy, verifier)
-results = runner.run(num_episodes=100)
+# -------------------------
+# Baseline
+# -------------------------
+verifier = HybridVerifier(env=env, world_model=models[0], ensemble_model=ensemble, critic=critic, mode="baseline")
 
-print("Baseline Results:")
-for k, v in results.items():
-    print(f"  {k}: {v:.4f}")
+runner = ExperimentRunner(env, policy, verifier)
+results_all["baseline"] = runner.run(num_episodes=100)
+
+# OOD 
+verifier = HybridVerifier(env, models[0], ensemble, critic, mode="baseline")
+runner = ExperimentRunner(env, policy, verifier)
+results_all["ood"] = runner.run(num_episodes=100, condition="ood")
+
+
+
+# -------------------------
+# Epistemic bias 
+
+verifier = HybridVerifier(
+    env=env,
+    world_model=models[0],
+    ensemble_model=ensemble,
+    critic=critic,
+    mode="epistemic"
+)
+
+runner = ExperimentRunner(env, policy, verifier)
+results_all["epistemic"] = runner.run(num_episodes=100)
+
+# -------------------------
+# Plot
+# -------------------------
+plot_metrics(results_all)
+
+
+#print("Baseline Results:")
+#for k, v in results.items():
+ #   print(f"  {k}: {v:.4f}")
