@@ -1,69 +1,6 @@
 import numpy as np
 
 
-
-"""
-class ExperimentRunner:
-    def __init__(self, env, policy, verifier):
-        self.env = env
-        self.policy = policy
-        self.verifier = verifier
-
-    def run(self, num_episodes=100):
-        violations = 0
-        blocks = 0
-        false_negatives = 0
-        false_positives = 0
-        total_steps = 0
-
-        episode_data = []
-
-        for _ in range(num_episodes):
-            state = self.env.reset()
-            done = False
-
-            ep_steps = 0
-            ep_violations = 0
-            ep_blocks = 0
-
-            while not done and ep_steps < 50:
-                action = self.policy.select_action(state)
-
-                safe, _ = self.verifier.is_safe(state, action)
-
-                if safe:
-                    next_state, _, done, info = self.env.step(action)
-
-                    if info.get("constraint", 0) == 1:
-                        violations += 1
-                        ep_violations += 1
-                else:
-                    blocks += 1
-                    ep_blocks += 1
-                    next_state = state
-
-                total_steps += 1
-                ep_steps += 1
-                state = next_state
-
-            episode_data.append({
-                "violations": ep_violations,
-                "blocks": ep_blocks,
-                "steps": ep_steps
-            })
-
-        return {
-            "violation_rate": violations / total_steps,
-            "block_rate": blocks / total_steps,
-            "episode_data": episode_data
-        }
-
-"""
-
-
-
-
-
 class ExperimentRunner:
     def __init__(self, env, policy, verifier):
         self.env = env
@@ -131,8 +68,6 @@ class ExperimentRunner:
             if done:
                 break
 
-            
-
         return metrics
 
     # -------------------------
@@ -169,6 +104,7 @@ class ExperimentRunner:
             "false_negative_rate": aggregate["false_negatives"] / aggregate["total"],
             "false_positive_rate": aggregate["false_positives"] / aggregate["total"],
         }
+        print(f"Results for condition {condition}: {results}")
 
         return results
 
